@@ -21,6 +21,7 @@ interface ChatContextType {
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  setInput: (value: string) => void;
   status: string;
 }
 
@@ -38,6 +39,7 @@ export function ChatProvider({
     input,
     handleInputChange,
     handleSubmit,
+    setInput,
     status,
   } = useAIChat({
     api: "/api/chat",
@@ -65,6 +67,7 @@ export function ChatProvider({
         input,
         handleInputChange,
         handleSubmit,
+        setInput,
         status,
       }}
     >

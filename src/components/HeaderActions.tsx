@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Plus, LogOut, FolderOpen, ChevronDown } from "lucide-react";
+import { Plus, LogOut, FolderOpen, ChevronDown, Moon, Sun } from "lucide-react";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { signOut } from "@/actions";
 import { getProjects } from "@/actions/get-projects";
@@ -21,6 +21,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface HeaderActionsProps {
   user?: {
@@ -37,6 +38,25 @@ interface Project {
   updatedAt: Date;
 }
 
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface-elevated)] border border-[var(--border)]"
+      onClick={toggleTheme}
+      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {theme === "dark" ? (
+        <Sun className="h-4 w-4" />
+      ) : (
+        <Moon className="h-4 w-4" />
+      )}
+    </Button>
+  );
+}
+
 export function HeaderActions({ user, projectId }: HeaderActionsProps) {
   const router = useRouter();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
@@ -46,7 +66,6 @@ export function HeaderActions({ user, projectId }: HeaderActionsProps) {
   const [initialLoading, setInitialLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Load projects initially
   useEffect(() => {
     if (user && projectId) {
       getProjects()
@@ -56,7 +75,6 @@ export function HeaderActions({ user, projectId }: HeaderActionsProps) {
     }
   }, [user, projectId]);
 
-  // Refresh projects when popover opens
   useEffect(() => {
     if (user && projectsOpen) {
       getProjects().then(setProjects).catch(console.error);
@@ -95,11 +113,19 @@ export function HeaderActions({ user, projectId }: HeaderActionsProps) {
   if (!user) {
     return (
       <>
-        <div className="flex gap-2">
-          <Button variant="outline" className="h-8" onClick={handleSignInClick}>
+        <div className="flex gap-2 items-center">
+          <ThemeToggle />
+          <Button
+            variant="outline"
+            className="h-8 bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)]"
+            onClick={handleSignInClick}
+          >
             Sign In
           </Button>
-          <Button className="h-8" onClick={handleSignUpClick}>
+          <Button
+            className="h-8 gradient-bg text-white border-0 hover:opacity-90"
+            onClick={handleSignUpClick}
+          >
             Sign Up
           </Button>
         </div>
@@ -114,24 +140,34 @@ export function HeaderActions({ user, projectId }: HeaderActionsProps) {
 
   return (
     <div className="flex items-center gap-2">
+      <ThemeToggle />
+
       {!initialLoading && (
         <Popover open={projectsOpen} onOpenChange={setProjectsOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="h-8 gap-2" role="combobox">
+            <Button
+              variant="outline"
+              className="h-8 gap-2 bg-[var(--surface)] border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)]"
+              role="combobox"
+            >
               <FolderOpen className="h-4 w-4" />
               {currentProject ? currentProject.name : "Select Project"}
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[300px] p-0" align="end">
-            <Command>
+          <PopoverContent
+            className="w-[300px] p-0 bg-[var(--popover)] border-[var(--border)]"
+            align="end"
+          >
+            <Command className="bg-transparent">
               <CommandInput
                 placeholder="Search projects..."
                 value={searchQuery}
                 onValueChange={setSearchQuery}
+                className="text-[var(--foreground)]"
               />
               <CommandList>
-                <CommandEmpty>No projects found.</CommandEmpty>
+                <CommandEmpty className="text-[var(--muted)]">No projects found.</CommandEmpty>
                 <CommandGroup>
                   {filteredProjects.map((project) => (
                     <CommandItem
@@ -142,6 +178,7 @@ export function HeaderActions({ user, projectId }: HeaderActionsProps) {
                         setProjectsOpen(false);
                         setSearchQuery("");
                       }}
+                      className="text-[var(--foreground)] hover:bg-[var(--surface-elevated)]"
                     >
                       <div className="flex flex-col">
                         <span className="font-medium">{project.name}</span>
@@ -155,7 +192,10 @@ export function HeaderActions({ user, projectId }: HeaderActionsProps) {
         </Popover>
       )}
 
-      <Button className="flex items-center gap-2 h-8" onClick={handleNewDesign}>
+      <Button
+        className="flex items-center gap-2 h-8 gradient-bg text-white border-0 hover:opacity-90"
+        onClick={handleNewDesign}
+      >
         <Plus className="h-4 w-4" />
         New Design
       </Button>
@@ -163,7 +203,7 @@ export function HeaderActions({ user, projectId }: HeaderActionsProps) {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8"
+        className="h-8 w-8 text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface-elevated)]"
         onClick={handleSignOut}
         title="Sign out"
       >
